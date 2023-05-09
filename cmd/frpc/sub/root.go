@@ -199,12 +199,45 @@ func runClient(cfgFilePath string) error {
 	return startService(cfg, pxyCfgs, visitorCfgs, cfgFilePath)
 }
 
+func parseClientCommonCfgFromENV(cfg config.ClientCommonConf) (resCfg config.ClientCommonConf, err error) {
+	user := os.Getenv("FRP_USER")
+	if user != "" {
+		cfg.User = user
+	}
+	serverAddr := os.Getenv("FRP_SERVER_ADDR")
+	if serverAddr != "" {
+		cfg.ServerAddr = serverAddr
+	}
+	serverPort := os.Getenv("FRP_SERVER_PORT")
+	if serverPort != "" {
+		cfg.ServerPort, err = strconv.Atoi(serverPort)
+		if err != nil {
+			err = fmt.Errorf("invalid server_port: %v", err)
+			return
+		}
+	}
+	logLevel := os.Getenv("FRP_LOG_LEVEL")
+	if logLevel != "" {
+		cfg.LogLevel = logLevel
+	}
+	logFile := os.Getenv("FRP_LOG_FILE")
+	if logFile != "" {
+		cfg.LogFile = logFile
+	}
+
+	return cfg, nil
+}
+
 func startService(
 	cfg config.ClientCommonConf,
 	pxyCfgs map[string]config.ProxyConf,
 	visitorCfgs map[string]config.VisitorConf,
 	cfgFile string,
 ) (err error) {
+	cfg, err = parseClientCommonCfgFromENV(cfg)
+	if err != nil {
+		return
+	}
 	log.InitLog(cfg.LogWay, cfg.LogFile, cfg.LogLevel,
 		cfg.LogMaxDays, cfg.DisableLogColor)
 

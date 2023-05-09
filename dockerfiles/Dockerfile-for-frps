@@ -5,8 +5,9 @@ WORKDIR /building
 
 RUN make frps
 
-FROM alpine:3
+FROM alpine:3.14
 
 COPY --from=building /building/bin/frps /usr/bin/frps
-
-ENTRYPOINT ["/usr/bin/frps"]
+COPY --from=building /building/conf/frps_full.ini /conf/frps_full.ini
+RUN mkdir -p /data/log
+CMD ["/usr/bin/frps", "-c", "/conf/frps_full.ini"]

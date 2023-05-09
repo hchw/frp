@@ -8,5 +8,6 @@ RUN make frpc
 FROM alpine:3
 
 COPY --from=building /building/bin/frpc /usr/bin/frpc
+COPY --from=building /building/conf/frpc.ini /conf/frpc.ini
 
-ENTRYPOINT ["/usr/bin/frpc"]
+CMD ["/usr/bin/frpc","","-c","/conf/frpc.ini"]
