@@ -224,7 +224,7 @@ func parseClientCommonCfgFromENV(cfg config.ClientCommonConf) (resCfg config.Cli
 	if logFile != "" {
 		cfg.LogFile = logFile
 	}
-
+	fmt.Printf("logFile: %+v\n", logFile)
 	return cfg, nil
 }
 
