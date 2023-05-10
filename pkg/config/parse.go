@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 func ParseClientConfig(filePath string) (
@@ -55,6 +56,10 @@ func ParseClientConfig(filePath string) (
 	}
 	configBuffer.WriteString("\n")
 	configBuffer.Write(buf)
+	cfg, err = parseClientCommonCfgFromENV(cfg)
+	if err != nil {
+		return
+	}
 
 	// Parse all proxy and visitor configs.
 	pxyCfgs, visitorCfgs, err = LoadAllProxyConfsFromIni(cfg.User, configBuffer.Bytes(), cfg.Start)
@@ -62,6 +67,35 @@ func ParseClientConfig(filePath string) (
 		return
 	}
 	return
+}
+
+func parseClientCommonCfgFromENV(cfg ClientCommonConf) (resCfg ClientCommonConf, err error) {
+	user := os.Getenv("FRP_USER")
+	if user != "" {
+		cfg.User = user
+	}
+	serverAddr := os.Getenv("FRP_SERVER_ADDR")
+	if serverAddr != "" {
+		cfg.ServerAddr = serverAddr
+	}
+	serverPort := os.Getenv("FRP_SERVER_PORT")
+	if serverPort != "" {
+		cfg.ServerPort, err = strconv.Atoi(serverPort)
+		if err != nil {
+			err = fmt.Errorf("invalid server_port: %v", err)
+			return
+		}
+	}
+	logLevel := os.Getenv("FRP_LOG_LEVEL")
+	if logLevel != "" {
+		cfg.LogLevel = logLevel
+	}
+	logFile := os.Getenv("FRP_LOG_FILE")
+	if logFile != "" {
+		cfg.LogFile = logFile
+	}
+	fmt.Printf("logFile: %+v\n", cfg)
+	return cfg, nil
 }
 
 // getIncludeContents renders all configs from paths.
