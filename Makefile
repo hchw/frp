@@ -45,6 +45,7 @@ e2e-trace:
 
 alltest: vet gotest e2e
 	
+	
 clean:
 	rm -f ./bin/frpc
 	rm -f ./bin/frps
